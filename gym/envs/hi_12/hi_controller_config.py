@@ -13,7 +13,8 @@ class HiControllerCfg(LeggedRobotCfg):
         num_actuators = 12
         episode_length_s = 17  # 100
         frame_stack = 1
-        num_single_obs = 36
+        #num_single_obs = 36
+        num_single_obs = 39
         num_observations = frame_stack * num_single_obs
 
     class terrain(LeggedRobotCfg.terrain):
@@ -320,6 +321,8 @@ class HiControllerCfg(LeggedRobotCfg):
         dof_vel = 1.0  # .1
         dof_pos_target = dof_pos  # scale by range of motion
 
+        base_lin_acc_body = 1.0
+
         # Action scales
         commands = 1.0
         clip_actions = 10.0
@@ -363,6 +366,7 @@ class HiControllerRunnerCfg(LeggedRobotRunnerCfg):
             "dof_vel",
             "base_ang_vel",
             "base_euler_xyz",
+            "base_lin_acc_body",
             # "projected_gravity",
             "full_step_period_obs",
             # "foot_states_right",
@@ -377,6 +381,7 @@ class HiControllerRunnerCfg(LeggedRobotRunnerCfg):
             "dof_vel",
             "base_ang_vel",
             "base_euler_xyz",
+            "base_lin_acc_body",
             # "projected_gravity",
             "full_step_period_obs",
             # "foot_states_right",
@@ -387,6 +392,7 @@ class HiControllerRunnerCfg(LeggedRobotRunnerCfg):
             "base_lin_vel_world",  # "base_lin_vel",
             "base_euler_xyz",
             "base_ang_vel",
+            "base_lin_acc_body",
             "projected_gravity",
             "foot_states_right",
             "foot_states_left",
@@ -408,6 +414,7 @@ class HiControllerRunnerCfg(LeggedRobotRunnerCfg):
             base_lin_vel_world = 0.05
             base_heading = 0.01
             base_ang_vel = 0.15
+            base_lin_acc_body = 0.2
             projected_gravity = 0.05
             base_euler_xyz = 0.15
             foot_states_right = 0.01

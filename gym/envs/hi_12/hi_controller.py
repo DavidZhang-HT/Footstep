@@ -109,6 +109,9 @@ class HiController(LeggedRobot):
         self.base_lin_vel_world = torch.zeros(
             self.num_envs, 3, dtype=torch.float, device=self.device, requires_grad=False
         )
+        self.base_lin_acc_body = torch.zeros(
+            self.num_envs, 3, dtype=torch.float, device=self.device, requires_grad=False
+        )
 
         # * Step commands
         self.step_commands = torch.zeros(
@@ -863,7 +866,30 @@ class HiController(LeggedRobot):
         self.phase_cos = torch.cos(2 * torch.pi * self.phase)
 
         self.base_lin_vel_world = self.root_states[:, 7:10].clone()
+        # === 计算 base 的线加速度（world frame）
+        if not hasattr(self, "last_base_lin_vel_world"):
+            self.last_base_lin_vel_world = self.base_lin_vel_world.clone()
+        
+        #print("Base linear vel (world):", self.base_lin_vel_world[0].cpu().numpy())
+        #print("Last base linear vel (world):", self.last_base_lin_vel_world[0].cpu().numpy())
+        
+        self.base_lin_acc_world = (self.base_lin_vel_world - self.last_base_lin_vel_world) / self.dt
+        self.last_base_lin_vel_world = self.base_lin_vel_world.clone()
 
+        # === 将线加速度转换为 body frame（机器人坐标系）
+        self.base_lin_acc_body = quat_rotate_inverse(self.base_quat, self.base_lin_acc_world)
+        
+        # 1. 重力在世界坐标系是 [0, 0, -9.81]
+        gravity_world = torch.tensor([0, 0, -9.81], device=self.device).unsqueeze(0).repeat(self.num_envs, 1)
+
+        # 2. 变换到 body frame
+        gravity_body = quat_rotate_inverse(self.base_quat, gravity_world)
+        
+        # 3. 添加到 base_linear_acc_body
+        self.base_lin_acc_body += gravity_body
+        
+        #print("Base linear acc (body):", self.base_lin_acc_body[0].cpu().numpy())
+     
         
         
     def check_termination(self):
